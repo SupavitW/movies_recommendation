@@ -1,0 +1,47 @@
+services:
+  mongo:
+    image: mongo
+    container_name: movie_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: supavit02
+      MONGO_INITDB_ROOT_PASSWORD: sertchai
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - movie_network
+
+  redis:
+    image: redis:alpine
+    container_name: movie_redis
+    ports:
+      - "6379:6379"
+    volumes:
+        - redis-data:/data
+    networks:
+      - movie_network
+
+  backend:
+    container_name: movie_backend
+    build: .
+    environment:
+      - PORT=3000  # Set the port to 5000
+    ports:
+      - "3000:3000" # Map host port 8000 to container port 8001
+    volumes:
+      - ./src:/app/src
+    networks:
+        - movie_network
+    depends_on:
+        - mongo
+        - redis
+
+volumes:
+  mongo-data:
+  redis-data:
+
+networks:
+  movie_network:
+    driver: bridge
