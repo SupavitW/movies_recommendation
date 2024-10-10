@@ -1,4 +1,4 @@
-import UserModel from "db/user";
+import UserModel from "../db/user";
 
 export default class User_Utils {
     static getUsers = async () => {

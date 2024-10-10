@@ -24,7 +24,14 @@ app.use(
     }),
 );
 
+// DB connection
+import { connectDB } from "./db/config";
+connectDB();
+
 // Router
+import router from "./router";
+app.use("/", router());
+
 if (process.env.NODE_ENV !== "test") {
     app.listen(PORT, () => {
         console.log(`The server is running on ${PORT}`);
