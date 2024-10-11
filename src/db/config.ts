@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import * as dotenv from "dotenv";
+dotenv.config();
 
-const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017/moviesdb";
+const mongoUrl = `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@mongo:${process.env.DB_PORT}`;
 
 export const connectDB = async () => {
     try {

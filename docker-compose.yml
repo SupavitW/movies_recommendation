@@ -1,4 +1,4 @@
-services:
+services: 
   mongo:
     image: mongo
     container_name: movie_mongo
@@ -27,9 +27,9 @@ services:
     container_name: movie_backend
     build: .
     environment:
-      - PORT=3000  # Set the port to 5000
+      - PORT=3000  # Set the port to 3000
     ports:
-      - "3000:3000" # Map host port 8000 to container port 8000
+      - "3000:3000" # Map host port 3000 to container port 3000
     volumes:
       - ./src:/app/src
     networks:

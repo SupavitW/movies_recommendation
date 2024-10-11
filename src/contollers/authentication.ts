@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import User_Utils from "../services/userServices";
 import jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
@@ -8,17 +8,16 @@ dotenv.config();
 export const register = async (req: Request, res: Response) => {
     try {
         const { username, password, preferred_genres } = req.body;
-
         if (!username || !password || !preferred_genres) {
-            res.status(400);
+            res.status(400).send("Invalid User Input");
         }
 
         const existingUser = await User_Utils.getUserByUsername(username);
         if (existingUser) {
-            res.status(400);
+            res.status(400).send("User already exist");
         }
 
-        const hashedPassword = passwordHash(password, 11);
+        const hashedPassword = await passwordHash(password, 11);
         const newUser = await User_Utils.createUser({
             username,
             authentication: {
@@ -29,7 +28,8 @@ export const register = async (req: Request, res: Response) => {
 
         res.status(201).json(newUser);
     } catch (error) {
-        throw error;
+        console.log(error);
+        res.status(500).json(error);
     }
 };
 
@@ -42,12 +42,16 @@ export const login = async (req: Request, res: Response) => {
             return;
         }
 
-        const user = await User_Utils.getUserByUsername(username);
+        const user = await User_Utils.getUserByUsername(username).select(
+            "+authentication.password",
+        );
 
         if (!user) {
             res.status(400).send("No user found");
             return;
         }
+
+        console.log(`User Object: ${user}`);
 
         if (!(await comparePassword(password, user.authentication.password))) {
             res.status(400).send("Wrong password");
@@ -62,10 +66,10 @@ export const login = async (req: Request, res: Response) => {
 
         user.authentication.sessionToken = token;
         await user.save();
-
         res.status(200).cookie("Movies_Token", token).json("Login Successful");
     } catch (error) {
-        throw error;
+        console.log(error);
+        res.status(500).json(error);
     }
 };
 
@@ -76,6 +80,7 @@ export const logout = async (req: Request, res: Response) => {
 
         res.status(200).clearCookie("Movies_Token").json("Logout Successful");
     } catch (error) {
-        throw error;
+        console.log(error);
+        res.status(500).json(error);
     }
 };

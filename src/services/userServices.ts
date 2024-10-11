@@ -15,8 +15,8 @@ export default class User_Utils {
         });
     };
 
-    static getUserByUsername = async (username: string) => {
-        return await UserModel.findOne({ username });
+    static getUserByUsername = (username: string) => {
+        return UserModel.findOne({ username });
     };
 
     static createUser = async (values: Record<string, any>) => {
