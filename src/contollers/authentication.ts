@@ -51,8 +51,6 @@ export const login = async (req: Request, res: Response) => {
             return;
         }
 
-        console.log(`User Object: ${user}`);
-
         if (!(await comparePassword(password, user.authentication.password))) {
             res.status(400).send("Wrong password");
         }
@@ -63,9 +61,9 @@ export const login = async (req: Request, res: Response) => {
         const token = jwt.sign({ user_id, user_genres }, secret, {
             expiresIn: "30m",
         });
-
         user.authentication.sessionToken = token;
         await user.save();
+
         res.status(200).cookie("Movies_Token", token).json("Login Successful");
     } catch (error) {
         console.log(error);
