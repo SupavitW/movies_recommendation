@@ -5,6 +5,10 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import compression from "compression";
+// DB connection
+import { connectDB } from "./db/config";
+// redis connection
+import { initRedis } from "./redis/config";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -19,23 +23,21 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(
-    cors({
-        credentials: true,
-    }),
+  cors({
+    credentials: true,
+  }),
 );
-
-// DB connection
-import { connectDB } from "./db/config";
-connectDB();
 
 // Router
 import router from "./router";
 app.use("/", router());
 
 if (process.env.NODE_ENV !== "test") {
-    app.listen(PORT, () => {
-        console.log(`The server is running on ${PORT}`);
-    });
+  app.listen(PORT, async () => {
+    await connectDB();
+    await initRedis(); // initialize redis connection
+    console.log(`The server is running on ${PORT}`);
+  });
 }
 
 export default app;
