@@ -2,6 +2,8 @@ import { parseInt } from "lodash";
 import TmdbService from "../services/movieServices";
 import { Request, Response } from "express";
 import { getRedisClient } from "../redis/config";
+import { get } from "lodash";
+import { recommendMovies } from "../helper";
 
 export const searchMovie = async (req: Request, res: Response) => {
   try {
@@ -69,6 +71,32 @@ export const getPopularMovie = async (req: Request, res: Response) => {
       EX: cacheExpiryTime,
     });
     res.status(200).json(popularMovies);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+export const getGenres = async (req: Request, res: Response) => {
+  try {
+    const genres = await TmdbService.getGenres();
+    res.status(200).json(genres);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+export const getMovieByGenre = async (req: Request, res: Response) => {
+  try {
+    const userPreferredGenres = get(req, "userData.user_genres");
+
+    if (!userPreferredGenres) {
+      res.status(400).json("User has no preferred genres");
+      return;
+    }
+    const movies = await recommendMovies(userPreferredGenres);
+    res.status(200).json(movies);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
